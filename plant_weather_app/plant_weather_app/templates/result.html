@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ labels['plant_health'] }}</title>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #9CECFB, #65C7F7, #0052D4);
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* 🌾 Loading Popup */
+    .loading-popup {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(120deg, #185a9d, #43cea2);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      z-index: 9999;
+      animation: fadeOut 0.8s ease 3s forwards;
+      overflow: hidden;
+    }
+
+    .loading-popup::before {
+      content: "";
+      position: absolute;
+      width: 160%;
+      height: 120%;
+      background: rgba(255, 255, 255, 0.15);
+      transform: rotate(-8deg);
+      animation: slideMove 3s ease-in-out;
+    }
+
+    @keyframes slideMove {
+      from { transform: translateX(-200%) rotate(-8deg); }
+      to { transform: translateX(200%) rotate(-8deg); }
+    }
+
+    .loading-popup h1 {
+      color: #fff;
+      font-size: 2.2rem;
+      text-shadow: 0 3px 15px rgba(0,0,0,0.4);
+      margin: 0;
+      z-index: 10;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.8; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.1); }
+      100% { opacity: 0.8; transform: scale(1); }
+    }
+
+    @keyframes fadeOut {
+      to { opacity: 0; visibility: hidden; }
+    }
+
+    /* 🌿 Main Container */
+    .container {
+      background: rgba(255, 0, 0, 0.95);
+      backdrop-filter: blur(10px);
+      padding: 2rem 3rem;
+      border-radius: 25px;
+      margin: 40px auto;
+      box-shadow: 0 8px 25px rgba(240, 205, 205, 0.25);
+      max-width: 900px;
+      width: 92%;
+      opacity: 0;
+      animation: fadeIn 1s ease 3.1s forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h1 {
+      text-align: center;
+      color: #bb00ff;
+      margin-bottom: 1rem;
+      font-size: 2rem;
+    }
+
+    h2 {
+      text-align: center;
+      color: #75a926;
+      font-size: 1.3rem;
+      margin-top: 0.5rem;
+    }
+
+    .crop-name {
+      text-align: center;
+      color: #ffa5a5;
+      font-weight: 600;
+      margin-top: -5px;
+      margin-bottom: 15px;
+      font-size: 1.1rem;
+    }
+
+    img {
+      display: block;
+      margin: 20px auto;
+      width: 280px;
+      height: 280px;
+      object-fit: cover;
+      border-radius: 20px;
+      box-shadow: 0 6px 25px rgba(0, 255, 247, 0.35);
+    }
+
+    .section {
+      background: #ffd000;
+      padding: 15px 20px;
+      border-radius: 14px;
+      margin-top: 22px;
+      box-shadow: 0 4px 10px rgba(255, 0, 0, 0.1);
+    }
+
+    .section h3 {
+      color: #1a73e8;
+      border-left: 5px solid #1a73e8;
+      padding-left: 10px;
+      margin-bottom: 10px;
+    }
+
+    p {
+      color: #333;
+      line-height: 1.7;
+    }
+
+    a {
+      color: #1a73e8;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .map-button {
+      display: inline-block;
+      background: linear-gradient(135deg, #43cea2, #185a9d);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 10px;
+      text-decoration: none;
+      margin-top: 10px;
+      transition: 0.3s;
+    }
+
+    .map-button:hover {
+      background: linear-gradient(135deg, #185a9d, #43cea2);
+    }
+
+    .back-btn {
+      display: block;
+      text-align: center;
+      margin-top: 30px;
+    }
+
+    .back-btn a {
+      text-decoration: none;
+      background: linear-gradient(135deg, #2E8B57, #0f4c81);
+      color: rgb(255, 140, 140);
+      padding: 12px 25px;
+      border-radius: 10px;
+      font-weight: 600;
+      transition: 0.3s;
+    }
+
+    .back-btn a:hover {
+      background: linear-gradient(135deg, #67b8ff, #00ff6e);
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 25px;
+      font-size: 0.9rem;
+      color: #ffffff;
+    }
+
+    .footer b {
+      color: #dc0d82;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 1.2rem;
+      }
+      img {
+        width: 200px;
+        height: 200px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 🌾 Entry Animation Popup -->
+  <div class="loading-popup">
+    <h1>🌾 Analyzing Your Crop Result...</h1>
+  </div>
+
+  <!-- 🌿 Main Result Content -->
+  <div class="container">
+    <h1>{{ labels['plant_health'] }}</h1>
+    <h2>{{ analysis['status'] }}</h2>
+    <p class="crop-name">🌾 Crop: {{ analysis['crop_name'] if analysis and analysis['crop_name'] else 'Unknown' }}</p>
+
+    {% if image_path %}
+      <img src="{{ image_path }}" alt="{{ labels['crop_name'] }}">
+    {% else %}
+      <p style="text-align:center; color:rgb(0, 0, 0);">⚠️ No image found. Please try capturing or uploading again.</p>
+    {% endif %}
+
+    {% if weather %}
+    <div class="section">
+      <h3>🌤️ {{ labels['weather_details'] }}</h3>
+      {% if weather.error %}
+        <p style="color:red;">{{ weather.error }}</p>
+      {% else %}
+        <p><b>📍 {{ weather.city }}</b></p>
+        <p>🌡️ {{ labels['temp_label'] }}: {{ weather.temp }}°C</p>
+        <p>🌥️ {{ labels['condition'] }}: {{ weather.desc }}</p>
+        {% if map_url %}
+          <a href="{{ map_url }}" target="_blank" class="map-button">📍 View on Map</a>
+        {% endif %}
+      {% endif %}
+    </div>
+    {% endif %}
+
+    {% if analysis %}
+    <div class="section">
+      <h3>🩺 {{ labels['summary'] }}</h3>
+      <p><b>{{ labels['infected_area'] }}:</b> {{ analysis.percent }}%</p>
+      <p>{{ analysis.summary }}</p>
+    </div>
+
+    <div class="section">
+      <h3>💊 {{ labels['treatment'] }}</h3>
+      <p>{{ analysis.treatment }}</p>
+    </div>
+
+    <div class="section" style="background:#00fa00;">
+      <h3>🌿 {{ labels['desi_treatment'] }} (Detailed)</h3>
+      <p>
+        {% if analysis.status == labels['healthy'][0] %}
+          {{ labels['healthy'][3] }}
+        {% elif analysis.status == labels['minor'][0] %}
+          {{ labels['minor'][3] }}
+        {% elif analysis.status == labels['leafspot'][0] %}
+          {{ labels['leafspot'][3] }}
+        {% else %}
+          {{ labels['severe'][3] }}
+        {% endif %}
+      </p>
+    </div>
+    {% endif %}
+
+    <div class="back-btn">
+      <a href="/">🔙 Go Back</a>
+    </div>
+
+    <div class="footer">
+      <p>Developed by <b>Ankit Bishnoi</b> & <b>Parveen Verma</b> 🌱</p>
+    </div>
+  </div>
+
+</body>
+</html>

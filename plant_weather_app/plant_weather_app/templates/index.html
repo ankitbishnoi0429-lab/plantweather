@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🌿 Plant Health & Weather Detection</title>
+  <style>
+    body {
+      font-family: "Poppins", sans-serif;
+      background: linear-gradient(135deg, #43cea2, #185a9d);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      color: #333;
+      overflow: hidden;
+    }
+
+    /* 🌾 Popup Overlay */
+    .popup {
+      position: fixed;
+      inset: 0;
+      background: url("https://images.pexels.com/photos/2194463/pexels-photo-2194463.jpeg?auto=compress&cs=tinysrgb&w=1600") center/cover no-repeat;
+      backdrop-filter: blur(4px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 999;
+      animation: fadeIn 1.2s ease forwards;
+    }
+
+    .popup::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.55);
+      backdrop-filter: blur(6px);
+      z-index: 998;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .popup-content {
+      position: relative;
+      background: rgba(255, 255, 255, 0.92);
+      border-radius: 20px;
+      padding: 35px 45px;
+      text-align: center;
+      box-shadow: 0 10px 35px rgba(0, 0, 0, 0.5);
+      animation: popIn 0.9s ease forwards;
+      z-index: 1000;
+      max-width: 400px;
+      transform: scale(0.7);
+      opacity: 0;
+    }
+
+    @keyframes popIn {
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .popup-content img {
+      width: 160px;
+      border-radius: 50%;
+      border: 4px solid #fff;
+      box-shadow: 0 6px 25px rgba(0, 0, 0, 0.4);
+    }
+
+    .popup-content h2 {
+      color: #2e7d32;
+      font-size: 2.2rem;
+      margin-top: 15px;
+    }
+
+    .popup-content p {
+      color: #444;
+      font-size: 1.15rem;
+      margin: 10px 0;
+    }
+
+    .popup-content button {
+      background: linear-gradient(135deg, #43cea2, #185a9d);
+      color: white;
+      border: none;
+      padding: 12px 28px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: bold;
+      margin-top: 10px;
+      transition: 0.3s;
+    }
+
+    .popup-content button:hover {
+      background: linear-gradient(135deg, #185a9d, #43cea2);
+      transform: scale(1.08);
+    }
+
+    /* 🌿 Main Card */
+    .card {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 2rem 3rem;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+      max-width: 480px;
+      width: 90%;
+      text-align: center;
+      backdrop-filter: blur(10px);
+      z-index: 1;
+      opacity: 0;
+      transform: translateY(40px);
+      transition: all 0.8s ease;
+    }
+
+    .card.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    h2 {
+      color: #185a9d;
+      margin-bottom: 0.5rem;
+      font-weight: 700;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: 600;
+      color: #222;
+      text-align: left;
+    }
+
+    input,
+    select,
+    button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 8px;
+      border: 1px solid #bbb;
+      border-radius: 8px;
+      font-size: 1rem;
+      outline: none;
+      transition: 0.2s;
+    }
+
+    input:focus,
+    select:focus {
+      border-color: #43cea2;
+      box-shadow: 0 0 5px rgba(67, 206, 162, 0.5);
+    }
+
+    button {
+      background: linear-gradient(135deg, #43cea2, #185a9d);
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      border: none;
+      margin-top: 15px;
+      transition: transform 0.2s;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+      background: linear-gradient(135deg, #185a9d, #43cea2);
+    }
+
+    .or-line {
+      margin: 15px 0;
+      text-align: center;
+      font-weight: 500;
+      color: #666;
+    }
+
+    .footer {
+      margin-top: 15px;
+      font-size: 0.9rem;
+      color: #b1f976;
+    }
+
+    video {
+      display: none;
+      width: 100%;
+      border-radius: 10px;
+      margin-top: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .hint {
+      font-size: 0.85rem;
+      color: #646d5f;
+      margin-top: 5px;
+    }
+  </style>
+</head>
+<body>
+  <!-- 🌾 POPUP (Farmer Greeting) -->
+  <div class="popup" id="welcomePopup">
+    <div class="popup-content">
+      <img src="https://images.pexels.com/photos/1606740/pexels-photo-1606740.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Farmer with Kudal" />
+      <h2>🙏 राम राम जी!</h2>
+      <p>🌾 खेत खलिहान हमारी शान 🌱</p>
+      <button onclick="closePopup()">चलो शुरू करें 👉</button>
+    </div>
+  </div>
+
+  <!-- 🌱 MAIN FORM -->
+  <div class="card" id="mainCard">
+    <h2>🌾 Plant Disease & Weather Detection</h2>
+    <form id="uploadForm" action="/analyze" method="POST" enctype="multipart/form-data">
+      <label>🌍 Enter City or Pincode:</label>
+      <input type="text" name="city" placeholder="e.g. Hisar or 125001" required />
+
+      <label>🌐 Select Language:</label>
+      <select name="language" required>
+        <option value="en">English</option>
+        <option value="hi">हिन्दी</option>
+        <option value="pa">ਪੰਜਾਬੀ</option>
+      </select>
+
+      <label>🌿 Upload Plant Image:</label>
+      <input type="file" id="plant_image" name="plant_image" accept="image/*" />
+
+      <div class="or-line">OR</div>
+
+      <button type="button" id="openCameraBtn">📷 Open Camera</button>
+      <video id="cameraView" autoplay></video>
+      <canvas id="cameraCanvas" style="display:none;"></canvas>
+      <p class="hint">📸 Tap video to capture photo</p>
+
+      <button type="submit">🔍 Analyze</button>
+    </form>
+
+    <div class="footer">
+      <p>Developed by <b>Ankit Bishnoi</b> & <b>Parveen Verma</b> 🌱</p>
+    </div>
+  </div>
+
+  <script>
+    function closePopup() {
+      const popup = document.getElementById("welcomePopup");
+      const card = document.getElementById("mainCard");
+      popup.style.animation = "fadeOut 0.6s forwards";
+      setTimeout(() => {
+        popup.style.display = "none";
+        card.classList.add("show");
+        document.body.style.overflow = "auto";
+      }, 600);
+    }
+
+    const style = document.createElement("style");
+    style.textContent = `
+      @keyframes fadeOut {
+        to {opacity: 0; visibility: hidden;}
+      }`;
+    document.head.appendChild(style);
+
+    // 📸 CAMERA FUNCTIONALITY
+    const openCameraBtn = document.getElementById("openCameraBtn");
+    const cameraView = document.getElementById("cameraView");
+    const cameraCanvas = document.getElementById("cameraCanvas");
+    const fileInput = document.getElementById("plant_image");
+    let stream;
+
+    openCameraBtn.addEventListener("click", async () => {
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+        cameraView.srcObject = stream;
+        cameraView.style.display = "block";
+        alert("📷 Tap on video to capture photo");
+      } catch (error) {
+        alert("⚠️ Camera access blocked. Please allow permission or use Upload option.");
+      }
+    });
+
+    cameraView.addEventListener("click", () => {
+      const ctx = cameraCanvas.getContext("2d");
+      cameraCanvas.width = cameraView.videoWidth;
+      cameraCanvas.height = cameraView.videoHeight;
+      ctx.drawImage(cameraView, 0, 0);
+      cameraCanvas.toBlob(
+        (blob) => {
+          const file = new File([blob], "captured_image.jpg", { type: "image/jpeg" });
+          const dt = new DataTransfer();
+          dt.items.add(file);
+          fileInput.files = dt.files;
+          alert("✅ Image captured successfully!");
+          stream.getTracks().forEach((track) => track.stop());
+          cameraView.style.display = "none";
+        },
+        "image/jpeg"
+      );
+    });
+  </script>
+</body>
+</html>
